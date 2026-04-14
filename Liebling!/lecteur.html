@@ -1,148 +1,28 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lecteur Webtoon Sécurisé</title>
-    <style>
-        body { margin: 0; padding: 0; background-color: #0f0f0f; color: #e0e0e0; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; }
-        
-        #nav-bar {
-            position: fixed; top: 0; width: 100%; background: rgba(15, 15, 15, 0.95);
-            padding: 12px; display: flex; justify-content: center; align-items: center; gap: 15px;
-            z-index: 1000; border-bottom: 1px solid #333; backdrop-filter: blur(10px);
-        }
-
-        .nav-btn { padding: 10px 18px; border: none; border-radius: 6px; background: #333; color: white; cursor: pointer; font-weight: bold; transition: 0.2s; text-decoration: none; font-size: 14px; }
-        .nav-btn:hover:not(:disabled) { background: #555; }
-        .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
-        
-        #btn-home { background: #444; margin-right: auto; margin-left: 10px; }
-        #btn-home:hover { background: #666; }
-
-        input { padding: 8px; border-radius: 6px; border: 1px solid #444; background: #222; color: white; text-align: center; width: 60px; font-size: 16px; }
-
-        #viewer { width: 100%; max-width: 800px; margin-top: 70px; display: flex; flex-direction: column; }
-        img { width: 100%; display: block; margin: 0; border: none; }
-        
-        .info { padding: 40px; text-align: center; color: #666; }
-
-        #back-to-top {
-            position: fixed; bottom: 20px; right: 20px; width: 50px; height: 50px;
-            background: #e74c3c; color: white; border: none; border-radius: 50%;
-            cursor: pointer; display: none; font-size: 20px; z-index: 1000;
-        }
-
-        /* Espaceur pour équilibrer le layout sur PC */
-        .spacer { margin-left: auto; width: 100px; display: none; }
-        @media (min-width: 800px) { .spacer { display: block; } }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Liebling ! — Lecteur</title>
+  <link rel="stylesheet" href="../style.css">
 </head>
 <body>
 
-    <div id="nav-bar">
-        <a href="../index.html" id="btn-home" class="nav-btn">🏠 Accueil</a>
+  <header id="nav-bar">
+    <nav>
+      <a href="../index.html" class="nav-btn nav-btn--home">🏠</a>
+      <button id="btn-prec" class="nav-btn" onclick="changerOffset(-1)">&#8249; Préc.</button>
+      <span id="nav-title"></span>
+      <button id="btn-suiv" class="nav-btn nav-btn--next" onclick="changerOffset(1)">Suiv. &#8250;</button>
+    </nav>
+    <input type="number" id="chapNum" value="0" min="0" max="138"
+           style="display:none" onchange="chargerChapitre()">
+  </header>
 
-        <button id="btn-prec" class="nav-btn" onclick="changerOffset(-1)">« Préc.</button>
-        <div>
-            <span>Chapitre : </span>
-            <input type="number" id="chapNum" value="0" min="0" max="139" onchange="validerBornes()">
-        </div>
-        <button id="btn-suiv" class="nav-btn" onclick="changerOffset(1)">Suiv. »</button>
-        
-        <div class="spacer"></div>
-    </div>
+  <main id="viewer"></main>
 
-    <div id="viewer"></div>
+  <button id="back-to-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">&#8593;</button>
 
-    <button id="back-to-top" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">↑</button>
-
-    <script>
-        // Configuration des limites
-        const MIN_CHAP = 0;
-        const MAX_CHAP = 139;
-
-        // Génération d'une clé de sauvegarde unique basée sur le nom du dossier
-        const pathArray = window.location.pathname.split('/');
-        const folderName = pathArray[pathArray.length - 2]; 
-        const STORAGE_KEY = `webtoon_save_${decodeURIComponent(folderName)}`;
-
-        window.onload = function() {
-            // Chargement de la sauvegarde spécifique à ce Webtoon
-            const dernierChapitre = localStorage.getItem(STORAGE_KEY);
-            if (dernierChapitre !== null) {
-                document.getElementById('chapNum').value = dernierChapitre;
-            }
-            validerBornes();
-            chargerChapitre();
-        };
-
-        function validerBornes() {
-            const input = document.getElementById('chapNum');
-            
-            // Correction si l'utilisateur tape un chiffre hors limites
-            if (parseInt(input.value) < MIN_CHAP) input.value = MIN_CHAP;
-            if (parseInt(input.value) > MAX_CHAP) input.value = MAX_CHAP;
-            
-            // État des boutons de navigation
-            document.getElementById('btn-prec').disabled = (input.value <= MIN_CHAP);
-            document.getElementById('btn-suiv').disabled = (input.value >= MAX_CHAP);
-        }
-
-        function chargerChapitre() {
-            validerBornes();
-            const viewer = document.getElementById('viewer');
-            const chap = document.getElementById('chapNum').value;
-            const MAX_PAGES_BOUCLE = 200; 
-            
-            // Sauvegarde de la progression
-            localStorage.setItem(STORAGE_KEY, chap);
-            
-            viewer.innerHTML = '<div class="info">Chargement du Chapitre ' + chap + '...</div>'; 
-
-            for (let i = 1; i <= MAX_PAGES_BOUCLE; i++) {
-                const img = document.createElement('img');
-                img.src = `Chapitre ${chap}/${i}.webp`;
-                img.loading = "lazy";
-                
-                // Nettoyage du message de chargement au succès
-                img.onload = () => { 
-                    const msg = viewer.querySelector('.info');
-                    if(msg) msg.remove(); 
-                };
-
-                // Suppression de la balise si l'image n'existe pas
-                img.onerror = function() { this.remove(); };
-                
-                viewer.appendChild(img);
-            }
-            window.scrollTo(0, 0);
-        }
-
-        function changerOffset(direction) {
-            const input = document.getElementById('chapNum');
-            let nouvelleValeur = parseInt(input.value) + direction;
-            
-            if (nouvelleValeur >= MIN_CHAP && nouvelleValeur <= MAX_CHAP) {
-                input.value = nouvelleValeur;
-                chargerChapitre();
-            }
-        }
-
-        // Gestion du bouton de remontée et du scroll
-        window.onscroll = function() {
-            const btn = document.getElementById('back-to-top');
-            if (document.body.scrollTop > 500 || document.documentElement.scrollTop > 500) {
-                btn.style.display = "block";
-            } else {
-                btn.style.display = "none";
-            }
-        };
-
-        // Touche Entrée pour charger
-        document.addEventListener('keypress', (e) => { 
-            if (e.key === 'Enter') chargerChapitre(); 
-        });
-    </script>
+  <script src="lecteur.js"></script>
 </body>
 </html>
