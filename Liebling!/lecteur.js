@@ -8,6 +8,9 @@ var pathArray = window.location.pathname.split('/');
 var folderName = decodeURIComponent(pathArray[pathArray.length - 2]);
 var STORAGE_KEY = 'webtoon_save_' + folderName;
 
+// Flag de session : une fois le bas atteint, ne plus revenir en arrière
+var chapitreTermine = false;
+
 // Lire le chapitre courant depuis le champ caché
 function currentChap() {
   return parseInt(document.getElementById('chapNum').value, 10);
@@ -41,8 +44,9 @@ function lireEtat() {
 
 // Sauvegarder l'état complet
 function sauvegarderEtat(done) {
+  var chap = currentChap();
   var state = {
-    chap: currentChap(),
+    chap: done ? Math.min(chap + 1, MAX_CHAP) : chap,
     scroll: done ? 0 : window.scrollY,
     done: done
   };
@@ -52,12 +56,19 @@ function sauvegarderEtat(done) {
 // Charger les images d'un chapitre
 // navigated = true quand appelé depuis changerOffset (chapitre précédent terminé)
 function chargerChapitre(navigated) {
+  chapitreTermine = false;
   var chap = Math.max(MIN_CHAP, Math.min(MAX_CHAP, currentChap()));
   document.getElementById('chapNum').value = chap;
   validerBornes();
   var viewer = document.getElementById('viewer');
 
-  sauvegarderEtat(navigated ? true : false);
+  // Quand on navigue (Suiv./Préc.), le chapitre courant est déjà le bon à pointer
+  if (navigated) {
+    var state = { chap: chap, scroll: 0, done: true };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } else {
+    sauvegarderEtat(false);
+  }
 
   // Vider le viewer et afficher message de chargement
   while (viewer.firstChild) {
@@ -95,7 +106,6 @@ function chargerChapitre(navigated) {
 }
 
 // Changer de chapitre (+1 ou -1)
-// La navigation explicite marque le chapitre courant comme terminé
 function changerOffset(direction) {
   var chap = currentChap() + direction;
   if (chap >= MIN_CHAP && chap <= MAX_CHAP) {
@@ -106,8 +116,15 @@ function changerOffset(direction) {
 
 // Sauvegarde de la position de défilement + bouton retour en haut
 window.addEventListener('scroll', function() {
-  var atBottom = (window.scrollY + window.innerHeight) >= (document.documentElement.scrollHeight - 50);
-  sauvegarderEtat(atBottom);
+  if (!chapitreTermine) {
+    var atBottom = (window.scrollY + window.innerHeight) >= (document.documentElement.scrollHeight - 50);
+    if (atBottom) {
+      chapitreTermine = true;
+      sauvegarderEtat(true);
+    } else {
+      sauvegarderEtat(false);
+    }
+  }
   var btn = document.getElementById('back-to-top');
   btn.style.display = (window.scrollY > 500) ? 'block' : 'none';
 });
