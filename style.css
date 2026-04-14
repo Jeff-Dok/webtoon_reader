@@ -127,3 +127,129 @@ button {
   color: var(--accent);
   font-weight: 600;
 }
+
+/* ================================
+   LECTEUR
+   ================================ */
+
+/* Barre de navigation fixe */
+#nav-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: var(--nav-bg);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: 1000;
+  padding: 10px 12px;
+}
+
+#nav-bar nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* Boutons nav */
+.nav-btn {
+  padding: 7px 14px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: #333;
+  color: var(--text);
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+
+.nav-btn:hover:not(:disabled) {
+  background: #555;
+}
+
+.nav-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.nav-btn--home {
+  background: #444;
+}
+
+.nav-btn--home:hover {
+  background: #666;
+}
+
+.nav-btn--next {
+  background: var(--accent);
+}
+
+.nav-btn--next:hover:not(:disabled) {
+  background: var(--accent-dark);
+}
+
+/* Titre centré dans la nav */
+#nav-title {
+  flex: 1;
+  text-align: center;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--accent);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Zone d'affichage des images */
+#viewer {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  margin-top: 60px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Images — colonne unique, zéro espace */
+#viewer figure {
+  margin: 0;
+  padding: 0;
+  line-height: 0;
+}
+
+#viewer img {
+  width: 100%;
+  display: block;
+}
+
+/* Message de chargement */
+.viewer-info {
+  padding: 40px;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+/* Bouton retour en haut */
+#back-to-top {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 48px;
+  height: 48px;
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  font-size: 1.2rem;
+  display: none;
+  z-index: 1000;
+  transition: background 0.2s;
+}
+
+#back-to-top:hover {
+  background: var(--accent-dark);
+}
