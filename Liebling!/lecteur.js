@@ -117,7 +117,7 @@ function changerOffset(direction) {
 // Sauvegarde de la position de défilement + bouton retour en haut
 window.addEventListener('scroll', function() {
   if (!chapitreTermine) {
-    var atBottom = (window.scrollY + window.innerHeight) >= (document.documentElement.scrollHeight - 50);
+    var atBottom = (window.scrollY + window.innerHeight) >= (document.documentElement.scrollHeight - 860);
     if (atBottom) {
       chapitreTermine = true;
       sauvegarderEtat(true);
