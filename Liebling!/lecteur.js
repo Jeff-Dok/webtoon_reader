@@ -111,15 +111,36 @@ window.addEventListener('scroll', function() {
   btn.style.display = (window.scrollY > 500) ? 'block' : 'none';
 });
 
+// Restaurer le scroll une fois que la page est assez haute pour l'atteindre
+function restaurerScroll(targetScroll) {
+  var restored = false;
+
+  function tryRestore() {
+    if (restored) return;
+    if (document.documentElement.scrollHeight >= targetScroll) {
+      restored = true;
+      window.scrollTo(0, targetScroll);
+    }
+  }
+
+  // Tenter après chaque image chargée ou en erreur
+  document.querySelectorAll('#viewer figure img').forEach(function(img) {
+    img.addEventListener('load', tryRestore);
+    img.addEventListener('error', tryRestore);
+  });
+
+  // Filet de sécurité si toutes les images sont déjà résolues
+  tryRestore();
+}
+
 // Initialisation au chargement
 window.addEventListener('load', function() {
   var state = lireEtat();
   if (state !== null) {
     document.getElementById('chapNum').value = state.chap;
     chargerChapitre(state.done);
-    // Restaurer la position si lecture interrompue en cours de chapitre
     if (!state.done && state.scroll > 0) {
-      setTimeout(function() { window.scrollTo(0, state.scroll); }, 300);
+      restaurerScroll(state.scroll);
     }
   } else {
     chargerChapitre(false);
