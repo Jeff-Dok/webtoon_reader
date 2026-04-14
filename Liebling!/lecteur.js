@@ -106,7 +106,8 @@ function changerOffset(direction) {
 
 // Sauvegarde de la position de défilement + bouton retour en haut
 window.addEventListener('scroll', function() {
-  sauvegarderEtat(false);
+  var atBottom = (window.scrollY + window.innerHeight) >= (document.documentElement.scrollHeight - 50);
+  sauvegarderEtat(atBottom);
   var btn = document.getElementById('back-to-top');
   btn.style.display = (window.scrollY > 500) ? 'block' : 'none';
 });
