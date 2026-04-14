@@ -10,18 +10,19 @@
 
   <header id="nav-bar">
     <nav>
-      <a href="../index.html" class="nav-btn nav-btn--home">🏠</a>
+      <a href="../index.html" class="nav-btn nav-btn--home" aria-label="Retour à la bibliothèque">🏠</a>
       <button id="btn-prec" class="nav-btn" onclick="changerOffset(-1)">&#8249; Préc.</button>
       <span id="nav-title"></span>
       <button id="btn-suiv" class="nav-btn nav-btn--next" onclick="changerOffset(1)">Suiv. &#8250;</button>
     </nav>
     <input type="number" id="chapNum" value="0" min="0" max="138"
+           aria-label="Numéro de chapitre"
            style="display:none" onchange="chargerChapitre()">
   </header>
 
   <main id="viewer"></main>
 
-  <button id="back-to-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">&#8593;</button>
+  <button id="back-to-top" aria-label="Retour en haut de page" onclick="window.scrollTo({top:0,behavior:'smooth'})">&#8593;</button>
 
   <script src="lecteur.js"></script>
 </body>
