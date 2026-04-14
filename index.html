@@ -43,13 +43,26 @@
       });
     });
 
-    // Lecture de la progression pour chaque carte (valeur entière depuis localStorage)
+    // Lecture de la progression pour chaque carte
     document.querySelectorAll('.webtoon-card[data-folder]').forEach(function(card) {
       var folder = card.dataset.folder;
-      var saved = localStorage.getItem('webtoon_save_' + folder);
-      if (saved !== null) {
-        var el = card.querySelector('[data-progress]');
-        el.textContent = '\u25ba Continuer au chapitre ' + parseInt(saved, 10);
+      var raw = localStorage.getItem('webtoon_save_' + folder);
+      if (raw === null) return;
+
+      var state;
+      try {
+        state = JSON.parse(raw);
+        if (typeof state !== 'object' || state === null) throw new Error();
+      } catch (e) {
+        // Ancien format : entier brut
+        state = { chap: parseInt(raw, 10), scroll: 0, done: true };
+      }
+
+      var el = card.querySelector('[data-progress]');
+      if (state.done || !state.scroll) {
+        el.textContent = '\u25ba Continuer au Chapitre ' + state.chap;
+      } else {
+        el.textContent = '\u25ba Continuer le Chapitre ' + state.chap;
       }
     });
   </script>

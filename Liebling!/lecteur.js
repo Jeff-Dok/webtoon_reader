@@ -26,15 +26,38 @@ function validerBornes() {
   updateTitle(chap);
 }
 
+// Lire l'état sauvegardé (supporte ancien format entier et nouveau format JSON)
+function lireEtat() {
+  var raw = localStorage.getItem(STORAGE_KEY);
+  if (raw === null) return null;
+  try {
+    var state = JSON.parse(raw);
+    if (typeof state === 'object' && state !== null) return state;
+  } catch (e) {}
+  // Ancien format : entier brut
+  var chap = parseInt(raw, 10);
+  return isNaN(chap) ? null : { chap: chap, scroll: 0, done: true };
+}
+
+// Sauvegarder l'état complet
+function sauvegarderEtat(done) {
+  var state = {
+    chap: currentChap(),
+    scroll: done ? 0 : window.scrollY,
+    done: done
+  };
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
 // Charger les images d'un chapitre
-function chargerChapitre() {
+// navigated = true quand appelé depuis changerOffset (chapitre précédent terminé)
+function chargerChapitre(navigated) {
   var chap = Math.max(MIN_CHAP, Math.min(MAX_CHAP, currentChap()));
   document.getElementById('chapNum').value = chap;
   validerBornes();
   var viewer = document.getElementById('viewer');
 
-  // Sauvegarder la progression (entier uniquement)
-  localStorage.setItem(STORAGE_KEY, chap);
+  sauvegarderEtat(navigated ? true : false);
 
   // Vider le viewer et afficher message de chargement
   while (viewer.firstChild) {
@@ -72,31 +95,38 @@ function chargerChapitre() {
 }
 
 // Changer de chapitre (+1 ou -1)
+// La navigation explicite marque le chapitre courant comme terminé
 function changerOffset(direction) {
   var chap = currentChap() + direction;
   if (chap >= MIN_CHAP && chap <= MAX_CHAP) {
     document.getElementById('chapNum').value = chap;
-    chargerChapitre();
+    chargerChapitre(true);
   }
 }
 
-// Bouton retour en haut
+// Sauvegarde de la position de défilement + bouton retour en haut
 window.addEventListener('scroll', function() {
+  sauvegarderEtat(false);
   var btn = document.getElementById('back-to-top');
   btn.style.display = (window.scrollY > 500) ? 'block' : 'none';
 });
 
 // Initialisation au chargement
 window.addEventListener('load', function() {
-  var saved = localStorage.getItem(STORAGE_KEY);
-  if (saved !== null) {
-    document.getElementById('chapNum').value = parseInt(saved, 10);
+  var state = lireEtat();
+  if (state !== null) {
+    document.getElementById('chapNum').value = state.chap;
+    chargerChapitre(state.done);
+    // Restaurer la position si lecture interrompue en cours de chapitre
+    if (!state.done && state.scroll > 0) {
+      setTimeout(function() { window.scrollTo(0, state.scroll); }, 300);
+    }
+  } else {
+    chargerChapitre(false);
   }
-  validerBornes();
-  chargerChapitre();
 });
 
 // Touche Entrée pour recharger
 document.addEventListener('keypress', function(e) {
-  if (e.key === 'Enter') chargerChapitre();
+  if (e.key === 'Enter') chargerChapitre(false);
 });
