@@ -28,8 +28,9 @@ function validerBornes() {
 
 // Charger les images d'un chapitre
 function chargerChapitre() {
+  var chap = Math.max(MIN_CHAP, Math.min(MAX_CHAP, currentChap()));
+  document.getElementById('chapNum').value = chap;
   validerBornes();
-  var chap = currentChap();
   var viewer = document.getElementById('viewer');
 
   // Sauvegarder la progression (entier uniquement)
@@ -50,7 +51,7 @@ function chargerChapitre() {
       var figure = document.createElement('figure');
       var img = document.createElement('img');
       img.src = 'Chapitre ' + chap + '/' + pageNum + '.webp';
-      img.loading = 'lazy';
+      img.loading = (pageNum <= 3) ? 'eager' : 'lazy';
       img.alt = 'Chapitre ' + chap + ' \u2014 page ' + pageNum;
 
       img.onload = function() {

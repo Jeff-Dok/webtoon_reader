@@ -21,7 +21,6 @@
             class="card-cover"
             src="Liebling!/cover.webp"
             alt="Couverture de Liebling !"
-            onerror="this.outerHTML='<div class=\'card-cover-placeholder\'>📂</div>'"
           >
           <div class="card-body">
             <h2 class="card-title">Liebling !</h2>
@@ -34,6 +33,16 @@
   </main>
 
   <script>
+    // Placeholder image de couverture manquante (sans innerHTML/outerHTML)
+    document.querySelectorAll('.card-cover').forEach(function(img) {
+      img.addEventListener('error', function() {
+        var placeholder = document.createElement('div');
+        placeholder.className = 'card-cover-placeholder';
+        placeholder.textContent = '\uD83D\uDCC2';
+        img.replaceWith(placeholder);
+      });
+    });
+
     // Lecture de la progression pour chaque carte (valeur entière depuis localStorage)
     document.querySelectorAll('.webtoon-card[data-folder]').forEach(function(card) {
       var folder = card.dataset.folder;
