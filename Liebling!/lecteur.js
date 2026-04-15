@@ -1,7 +1,7 @@
 // === Configuration — ajuster par webtoon ===
 var MIN_CHAP = 0;
 var MAX_CHAP = 138;
-var MAX_PAGES_BOUCLE = 200;
+var MAX_PAGES_BOUCLE = 139;
 
 // Clé localStorage unique basée sur le nom du dossier
 var pathArray = window.location.pathname.split('/');
